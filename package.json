@@ -1,0 +1,30 @@
+{
+  "name": "fcc-advanced-node-and-express",
+  "author": "http://github.com/JosephLivengood",
+  "version": "0.0.1",
+  "description": "What am I about?",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": "^12.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fuzzyray/advancednode.git"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "pug",
+    "passport",
+    "socketio",
+    "freecodecamp"
+  ],
+  "license": "MIT"
+}
