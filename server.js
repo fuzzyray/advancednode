@@ -11,7 +11,8 @@ app.use(express.urlencoded({extended: true}));
 app.set('view engine', 'pug');
 
 app.route('/').get((req, res) => {
-  res.render('./pug/index.pug');
+  const loginMsg = {title: 'Hello', message: 'Please login'};
+  res.render(`${process.cwd()}/views/pug/index.pug`, loginMsg);
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
