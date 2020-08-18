@@ -32,7 +32,11 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.set('view engine', 'pug');
 
-const clientOptions = {useUnifiedTopology: true, retryWrites: true, w: 'majority'};
+const clientOptions = {
+  useUnifiedTopology: true,
+  retryWrites: true,
+  w: 'majority',
+};
 const client = new MongoClient(process.env.MONGO_URI, clientOptions);
 client.connect((err) => {
   console.log('mongo connect started...');
@@ -61,6 +65,13 @@ client.connect((err) => {
       });
     }));
 
+    const ensureAuthenticated = (req, res, next) => {
+      if (req.isAuthenticated()) {
+        return next();
+      }
+      res.redirect('/');
+    };
+
     app.route('/').get((req, res) => {
       const loginMsg = {
         title: 'Hello',
@@ -71,11 +82,14 @@ client.connect((err) => {
     });
 
     const authOptions = {failureRedirect: '/'};
-    app.post('/login', passport.authenticate('local', authOptions),
-      (req, res) => {
-        console.log(req.body);
+    app.route('/login')
+      .post(passport.authenticate('local', authOptions), (req, res) => {
         res.redirect('/profile');
       });
+
+    app.route('/profile').get(ensureAuthenticated, (req, res) => {
+      res.render(`${process.cwd()}/views/pug/profile`);
+    });
 
     const listener = app.listen(process.env.PORT || 3000, () => {
       console.log('Listening on port ' + listener.address().port);
