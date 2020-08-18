@@ -91,8 +91,20 @@ client.connect((err) => {
     app.route('/profile').get(ensureAuthenticated, (req, res) => {
       const profileVars = {
         username: req.user.username,
-      }
+      };
       res.render(`${process.cwd()}/views/pug/profile`, profileVars);
+    });
+
+    app.route('/logout')
+      .get((req, res) => {
+        req.logout();
+        res.redirect('/');
+      });
+
+    app.use((req, res, next) => {
+      res.status(404)
+        .type('text')
+        .send('Not Found');
     });
 
     const listener = app.listen(process.env.PORT || 3000, () => {
