@@ -6,7 +6,7 @@ const fccTesting = require('./freeCodeCamp/fcctesting.js');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const session = require('express-session');
-const mongo = require('mongodb');
+const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 
 const app = express();
@@ -32,12 +32,15 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.set('view engine', 'pug');
 
-mongo.connect(process.env.MONGO_URI, {useUnifiedTopology: true}, (err, db) => {
+const clientOptions = {useUnifiedTopology: true, retryWrites: true, w: 'majority'};
+const client = new MongoClient(process.env.MONGO_URI, clientOptions);
+client.connect((err) => {
   console.log('mongo connect started...');
   if (err) {
     console.log(`Database error: ${err}`);
   } else {
     console.log('Connected to database');
+    const db = client.db('advancednode');
 
     passport.serializeUser((user, done) => {
       done(null, user._id);
@@ -59,9 +62,20 @@ mongo.connect(process.env.MONGO_URI, {useUnifiedTopology: true}, (err, db) => {
     }));
 
     app.route('/').get((req, res) => {
-      const loginMsg = {title: 'Hello', message: 'Please login'};
+      const loginMsg = {
+        title: 'Hello',
+        message: 'Please login',
+        showLogin: true,
+      };
       res.render(`${process.cwd()}/views/pug/index.pug`, loginMsg);
     });
+
+    const authOptions = {failureRedirect: '/'};
+    app.post('/login', passport.authenticate('local', authOptions),
+      (req, res) => {
+        console.log(req.body);
+        res.redirect('/profile');
+      });
 
     const listener = app.listen(process.env.PORT || 3000, () => {
       console.log('Listening on port ' + listener.address().port);
