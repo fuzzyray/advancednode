@@ -72,14 +72,15 @@ client.connect((err) => {
       res.redirect('/');
     };
 
-    app.route('/').get((req, res) => {
-      const loginMsg = {
-        title: 'Hello',
-        message: 'Please login',
-        showLogin: true,
-      };
-      res.render(`${process.cwd()}/views/pug/index.pug`, loginMsg);
-    });
+    app.route('/')
+      .get((req, res) => {
+        const mainVars = {
+          title: 'Hello',
+          message: 'Please login',
+          showLogin: true,
+        };
+        res.render(`${process.cwd()}/views/pug/index.pug`, mainVars);
+      });
 
     const authOptions = {failureRedirect: '/'};
     app.route('/login')
@@ -88,7 +89,10 @@ client.connect((err) => {
       });
 
     app.route('/profile').get(ensureAuthenticated, (req, res) => {
-      res.render(`${process.cwd()}/views/pug/profile`);
+      const profileVars = {
+        username: req.user.username,
+      }
+      res.render(`${process.cwd()}/views/pug/profile`, profileVars);
     });
 
     const listener = app.listen(process.env.PORT || 3000, () => {
