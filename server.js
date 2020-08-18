@@ -8,6 +8,7 @@ const LocalStrategy = require('passport-local');
 const session = require('express-session');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
+const bcrypt = require('bcrypt');
 
 const app = express();
 // log all requests
@@ -60,7 +61,9 @@ client.connect((err) => {
         console.log(`User: ${username} attempted login`);
         if (err) { return done(err); }
         if (!user) { return done(null, false); }
-        if (password !== user.password) { return done(null, false); }
+        if (!bcrypt.compareSync(password, user.password)) {
+          return done(null, false);
+        }
         return done(null, user);
       });
     }));
@@ -104,6 +107,7 @@ client.connect((err) => {
 
     app.route('/register')
       .post((req, res, next) => {
+          const hash = bcrypt.hashSync(req.body.password, 12);
           db.collection('users')
             .findOne({username: req.body.username}, (err, user) => {
               if (err) {
@@ -113,7 +117,7 @@ client.connect((err) => {
               } else {
                 db.collection('users').insertOne({
                   username: req.body.username,
-                  password: req.body.password,
+                  password: hash,
                 }, (err, doc) => {
                   if (err) {
                     res.redirect('/');
