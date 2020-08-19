@@ -39,14 +39,14 @@ const clientOptions = {
   retryWrites: true,
   w: 'majority',
 };
-const client = new MongoClient(process.env.MONGO_URI, clientOptions);
+const client = new MongoClient(process.env.DATABASE, clientOptions);
 client.connect((err) => {
   console.log('mongo connect started...');
   if (err) {
     console.log(`Database error: ${err}`);
   } else {
     console.log('Connected to database');
-    const db = client.db('advancednode');
+    const db = client.db(process.env.DBNAME);
 
     auth(app, db);
     routes(app, db);
